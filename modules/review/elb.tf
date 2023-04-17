@@ -20,7 +20,7 @@ resource "aws_lb_target_group" "main" {
 
 resource "aws_lb_listener_rule" "main" {
   listener_arn = var.listener_arn
-  priority     = 100
+  priority     = 999
 
   action {
     type             = "forward"

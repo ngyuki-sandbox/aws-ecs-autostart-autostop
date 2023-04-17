@@ -12,7 +12,7 @@ resource "aws_lambda_function" "this" {
     variables = {
       cluster_arn       = var.cluster_arn,
       service_name      = var.service_name,
-      listener_rule_arn = var.lambda_listener_rule_arn,
+      listener_rule_arn = var.listener_rule_arn,
     }
   }
 }

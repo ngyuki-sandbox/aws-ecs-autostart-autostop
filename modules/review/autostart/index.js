@@ -25,7 +25,7 @@ exports.up = async (event, context) => {
 
     await elbv2.setRulePriorities({
         RulePriorities: [{
-            Priority: 999,
+            Priority: 1,
             RuleArn: process.env.listener_rule_arn,
         }],
     }).promise();
@@ -54,7 +54,7 @@ exports.down = async (event, context) => {
 
     await elbv2.setRulePriorities({
         RulePriorities: [{
-            Priority: 1,
+            Priority: 999,
             RuleArn: process.env.listener_rule_arn,
         }],
     }).promise();
