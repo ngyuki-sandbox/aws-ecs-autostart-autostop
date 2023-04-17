@@ -9,16 +9,18 @@ module "common" {
   vpc_id             = module.vpc.vpc_id
   subnet_ids         = module.vpc.subnet_ids
   security_group_ids = [module.vpc.security_group_id]
+  zone_name          = var.zone_name
+  dns_name           = var.dns_name
 }
 
 module "review" {
   source             = "./modules/review"
   name               = "${var.name}-review"
+  dns_name           = trimsuffix("test.${var.dns_name}", ".")
   vpc_id             = module.vpc.vpc_id
   subnet_ids         = module.vpc.subnet_ids
   security_group_ids = [module.vpc.security_group_id]
   listener_arn       = module.common.listener_arn
-  dns_name           = module.common.dns_name
   execution_role_arn = module.common.execution_role_arn
   cluster_id         = module.common.cluster_id
 }
@@ -26,10 +28,10 @@ module "review" {
 module "autostart" {
   source       = "./modules/autostart"
   name         = "${var.name}-autostart"
+  dns_name           = trimsuffix("test.${var.dns_name}", ".")
   cluster_arn  = module.common.cluster_arn
   service_name = module.review.service_name
   listener_arn = module.common.listener_arn
-  dns_name     = module.common.dns_name
 }
 
 module "autostop" {

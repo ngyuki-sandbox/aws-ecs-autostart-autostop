@@ -15,8 +15,8 @@ resource "aws_lb_listener" "main" {
     type = "fixed-response"
     fixed_response {
       content_type = "text/plain"
-      message_body = ""
-      status_code  = "200"
+      message_body = "403 Forbidden"
+      status_code  = "403"
     }
   }
 }

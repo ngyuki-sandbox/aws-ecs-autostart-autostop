@@ -9,7 +9,7 @@ resource "aws_cloudwatch_metric_alarm" "this" {
   metric_name         = "RequestCountPerTarget"
   statistic           = "Sum"
   treat_missing_data  = "missing"
-  period              = 300
+  period              = 60
   evaluation_periods  = 1
   comparison_operator = "LessThanThreshold"
   threshold           = 1
