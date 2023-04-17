@@ -6,7 +6,7 @@ const ecs = new AWS.ECS();
 exports.up = async (event, context) => {
     console.log(JSON.stringify({event, context}, null, 2));
 
-    if (event.headers['x-ecs-autostart-pooling']) {
+    if (event.path === '/polling') {
         return {
             "statusCode": 503,
             "statusDescription": "503 Service Unavailable",
@@ -36,13 +36,14 @@ exports.up = async (event, context) => {
         "isBase64Encoded": false,
         "headers": { "Content-Type": "text/html" },
         "body": `
-            <h1>Please just a moment. Now starting environment.</h1>
+            <h1>Waiting for environment to start.</h1>
             <script>
                 setInterval(async () => {
-                    const response = await fetch('/', { headers: {'x-ecs-autostart-pooling': 'on'}, cache: 'no-store' });
+                    const response = await fetch('/polling', { cache: 'no-store' });
                     if (response.status < 500) {
                         location.reload();
                     }
+                    document.querySelector('h1').innerText += '.';
                 }, 1000);
             </script>
         `
