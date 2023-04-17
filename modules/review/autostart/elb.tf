@@ -1,6 +1,10 @@
 resource "aws_lb_target_group" "this" {
-  name        = var.name
+  name        = "${var.prefix}-${substr(sha1(var.name), 0, 31 - length(var.prefix))}"
   target_type = "lambda"
+
+  tags = {
+    Name = var.name
+  }
 }
 
 resource "aws_lb_target_group_attachment" "this" {
