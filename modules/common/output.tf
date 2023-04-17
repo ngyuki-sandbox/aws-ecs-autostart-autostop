@@ -2,13 +2,12 @@ output "cluster_arn" {
   value = aws_ecs_cluster.main.arn
 }
 
-output "service_name" {
-  value = aws_ecs_service.main.name
-
+output "cluster_id" {
+  value = aws_ecs_cluster.main.id
 }
 
-output "target_group_arn" {
-  value = aws_lb_target_group.main.arn
+output "execution_role_arn" {
+  value = aws_iam_role.execution.arn
 }
 
 output "listener_arn" {
