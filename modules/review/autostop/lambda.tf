@@ -1,8 +1,8 @@
 resource "aws_lambda_function" "this" {
   function_name    = var.name
-  filename         = var.lambda_filename
-  source_code_hash = var.lambda_filehash
-  role             = var.lambda_role_arn
+  filename         = data.archive_file.main.output_path
+  source_code_hash = data.archive_file.main.output_base64sha256
+  role             = aws_iam_role.lambda.arn
   handler          = "index.down"
   runtime          = "nodejs16.x"
   timeout          = 30

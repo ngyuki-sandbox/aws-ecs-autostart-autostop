@@ -20,3 +20,34 @@ resource "aws_lb_listener" "main" {
     }
   }
 }
+
+resource "aws_lb_target_group" "lambda" {
+  name        = "${var.name}-lambda"
+  target_type = "lambda"
+
+  tags = {
+    Name = var.name
+  }
+}
+
+resource "aws_lb_target_group_attachment" "lambda" {
+  target_group_arn = aws_lb_target_group.lambda.arn
+  target_id        = aws_lambda_function.main.arn
+  depends_on       = [aws_lambda_permission.main]
+}
+
+resource "aws_lb_listener_rule" "lambda" {
+  listener_arn = aws_lb_listener.main.arn
+  priority     = 10000
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.lambda.arn
+  }
+
+  condition {
+    host_header {
+      values = [trimsuffix("*.${var.dns_name}", ".")]
+    }
+  }
+}

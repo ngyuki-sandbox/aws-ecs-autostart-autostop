@@ -11,6 +11,7 @@ module "common" {
   security_group_ids = [module.vpc.security_group_id]
   zone_name          = var.zone_name
   dns_name           = var.dns_name
+  parameter_prefix   = "/${var.name}/review"
 }
 
 module "review" {
@@ -24,4 +25,5 @@ module "review" {
   execution_role_arn = module.common.execution_role_arn
   cluster_id         = module.common.cluster_id
   cluster_arn        = module.common.cluster_arn
+  parameter_prefix   = "/${var.name}/review"
 }

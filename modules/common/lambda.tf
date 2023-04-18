@@ -1,4 +1,4 @@
-resource "aws_lambda_function" "this" {
+resource "aws_lambda_function" "main" {
   function_name    = var.name
   filename         = data.archive_file.main.output_path
   source_code_hash = data.archive_file.main.output_base64sha256
@@ -15,10 +15,10 @@ resource "aws_lambda_function" "this" {
   }
 }
 
-resource "aws_lambda_permission" "this" {
+resource "aws_lambda_permission" "main" {
   statement_id  = var.name
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.this.function_name
+  function_name = aws_lambda_function.main.function_name
   principal     = "elasticloadbalancing.amazonaws.com"
-  source_arn    = aws_lb_target_group.this.arn
+  source_arn    = aws_lb_target_group.lambda.arn
 }
