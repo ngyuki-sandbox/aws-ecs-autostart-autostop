@@ -25,16 +25,21 @@ exports.up = async (event, context) => {
     const parameter = JSON.parse(res.Parameter.Value);
     console.log(JSON.stringify({ parameter }, null, 2));
 
+    const cluster_arn = parameter.cluster_arn;
+    const service_name = parameter.service_name;
+    const listener_rule_arn = parameter.listener_rule_arn;
+    const listener_priority = parameter.listener_priority;
+
     await ecs.updateService({
-        cluster: parameter.cluster_arn,
-        service: parameter.service_name,
+        cluster: cluster_arn,
+        service: service_name,
         desiredCount: 1,
     }).promise();
 
     await elbv2.setRulePriorities({
         RulePriorities: [{
-            Priority: 1,
-            RuleArn: parameter.listener_rule_arn,
+            Priority: listener_priority,
+            RuleArn: listener_rule_arn,
         }],
     }).promise();
 
@@ -95,10 +100,11 @@ exports.down = async (event, context) => {
     const cluster_arn = tags['ecs:cluster-arn']
     const service_name = tags['ecs:service-name']
     const listener_rule_arn = tags['elb:listener-rule-arn']
+    const listener_priority = tags['elb:listener-priority']
 
     await elbv2.setRulePriorities({
         RulePriorities: [{
-            Priority: 20001,
+            Priority: 20000 + listener_priority,
             RuleArn: listener_rule_arn,
         }],
     }).promise();
