@@ -2,7 +2,7 @@ resource "aws_sns_topic" "this" {
   name = var.name
 
   tags = {
-    Name = var.name
+    Name       = var.name
     "dns-name" = var.dns_name
   }
 }

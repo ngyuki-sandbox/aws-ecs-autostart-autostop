@@ -1,6 +1,6 @@
 resource "aws_ssm_parameter" "main" {
-  name  = "${var.parameter_prefix}/${var.dns_name}"
-  type  = "String"
+  name = "${var.parameter_prefix}/${var.dns_name}"
+  type = "String"
   value = jsonencode({
     cluster_arn       = var.cluster_arn
     service_name      = aws_ecs_service.main.name
