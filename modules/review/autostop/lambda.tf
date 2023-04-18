@@ -7,14 +7,6 @@ resource "aws_lambda_function" "this" {
   runtime          = "nodejs16.x"
   timeout          = 30
   memory_size      = 1024
-
-  environment {
-    variables = {
-      cluster_arn       = var.cluster_arn,
-      service_name      = var.service_name,
-      listener_rule_arn = var.listener_rule_arn,
-    }
-  }
 }
 
 resource "aws_lambda_permission" "this" {
