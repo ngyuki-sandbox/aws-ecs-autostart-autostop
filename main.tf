@@ -26,4 +26,6 @@ module "review" {
   cluster_id         = module.common.cluster_id
   cluster_arn        = module.common.cluster_arn
   parameter_prefix   = "/${var.name}/review"
+  lambda_function_arn = module.common.lambda_function_arn
+  lambda_function_name = module.common.lambda_function_name
 }

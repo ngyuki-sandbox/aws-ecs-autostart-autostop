@@ -1,5 +1,5 @@
 resource "aws_lambda_function" "main" {
-  function_name    = var.name
+  function_name    = "${var.name}-up"
   filename         = data.archive_file.main.output_path
   source_code_hash = data.archive_file.main.output_base64sha256
   role             = aws_iam_role.lambda.arn

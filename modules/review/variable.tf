@@ -8,3 +8,5 @@ variable "execution_role_arn" {}
 variable "listener_arn" {}
 variable "dns_name" {}
 variable "parameter_prefix" {}
+variable "lambda_function_arn" {}
+variable "lambda_function_name" {}
