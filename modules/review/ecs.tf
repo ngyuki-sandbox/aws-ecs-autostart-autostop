@@ -9,7 +9,7 @@ resource "aws_ecs_task_definition" "main" {
   container_definitions = jsonencode([
     {
       "name" : "app",
-      "image" : "nginx:alpine",
+      "image" : var.image,
       "essential" : true,
       "portMappings" : [
         {

@@ -5,6 +5,40 @@ const ecs = new AWS.ECS();
 const ssm = new AWS.SSM();
 const sns = new AWS.SNS();
 
+function pluckSnsTopicArn(event) {
+    const rec = event.Records[0];
+    if (rec.EventSource !== 'aws:sns') {
+        return null;
+    }
+    if (rec.Sns === undefined) {
+        return null;
+    }
+    if (rec.Sns.Type !== 'Notification') {
+        return null;
+    }
+    return rec.Sns.TopicArn;
+}
+
+async function fetchSnsTopicTags(topic) {
+    const res = await sns.listTagsForResource({ ResourceArn: topic }).promise();
+    return res.Tags.reduce((r, {Key, Value}) => {
+        r[Key] = Value;
+        return r;
+    }, {})
+}
+
+async function fetchParameter(dns_name) {
+    const parameter_prefix = process.env.parameter_prefix;
+    const res = await ssm.getParameter({ Name: `${parameter_prefix}/${dns_name}` }).promise();
+    const parameter = JSON.parse(res.Parameter.Value);
+    return {
+        cluster_arn: parameter.cluster_arn,
+        service_name: parameter.service_name,
+        listener_rule_arn: parameter.listener_rule_arn,
+        listener_priority: parameter.listener_priority,
+    };
+}
+
 exports.up = async (event, context) => {
     //console.log(JSON.stringify({event, context}, null, 2));
 
@@ -18,28 +52,20 @@ exports.up = async (event, context) => {
         };
     }
 
-    const host = event.headers.host;
-    const parameter_prefix = process.env.parameter_prefix;
-
-    const res = await ssm.getParameter({ Name: `${parameter_prefix}/${host}` }).promise();
-    const parameter = JSON.parse(res.Parameter.Value);
+    const dns_name = event.headers.host;
+    const parameter = await fetchParameter(dns_name);
     console.log(JSON.stringify({ parameter }, null, 2));
 
-    const cluster_arn = parameter.cluster_arn;
-    const service_name = parameter.service_name;
-    const listener_rule_arn = parameter.listener_rule_arn;
-    const listener_priority = parameter.listener_priority;
-
     await ecs.updateService({
-        cluster: cluster_arn,
-        service: service_name,
+        cluster: parameter.cluster_arn,
+        service: parameter.service_name,
         desiredCount: 1,
     }).promise();
 
     await elbv2.setRulePriorities({
         RulePriorities: [{
-            Priority: listener_priority,
-            RuleArn: listener_rule_arn,
+            Priority: parameter.listener_priority,
+            RuleArn: parameter.listener_rule_arn,
         }],
     }).promise();
 
@@ -63,28 +89,6 @@ exports.up = async (event, context) => {
     };
 };
 
-function pluckSnsTopicArn(event) {
-    const rec = event.Records[0];
-    if (rec.EventSource !== 'aws:sns') {
-        return null;
-    }
-    if (rec.Sns === undefined) {
-        return null;
-    }
-    if (rec.Sns.Type !== 'Notification') {
-        return null;
-    }
-    return rec.Sns.TopicArn;
-}
-
-async function fetchSnsTopicTags(topic) {
-    const res = await sns.listTagsForResource({ ResourceArn: topic }).promise();
-    return res.Tags.reduce((r, {Key, Value}) => {
-        r[Key] = Value;
-        return r;
-    }, {})
-}
-
 exports.down = async (event, context) => {
     console.log(JSON.stringify({event, context}, null, 2));
 
@@ -97,21 +101,20 @@ exports.down = async (event, context) => {
     const tags = await fetchSnsTopicTags(topic);
     console.log(JSON.stringify({tags}, null, 2));
 
-    const cluster_arn = tags['ecs:cluster-arn']
-    const service_name = tags['ecs:service-name']
-    const listener_rule_arn = tags['elb:listener-rule-arn']
-    const listener_priority = tags['elb:listener-priority']
+    const dns_name = tags['dns-name'];
+    const parameter = await fetchParameter(dns_name);
+    console.log(JSON.stringify({ parameter }, null, 2));
 
     await elbv2.setRulePriorities({
         RulePriorities: [{
-            Priority: 20000 + listener_priority,
-            RuleArn: listener_rule_arn,
+            Priority: parameter.listener_priority + 20000,
+            RuleArn: parameter.listener_rule_arn,
         }],
     }).promise();
 
     await ecs.updateService({
-        cluster: cluster_arn,
-        service: service_name,
+        cluster: parameter.cluster_arn,
+        service: parameter.service_name,
         desiredCount: 0,
     }).promise();
 

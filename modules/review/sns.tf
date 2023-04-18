@@ -3,11 +3,7 @@ resource "aws_sns_topic" "this" {
 
   tags = {
     Name = var.name
-    "ecs:cluster-arn"       = var.cluster_arn
-    "ecs:service-name"      = aws_ecs_service.main.name
-    "elb:listener-rule-arn" = aws_lb_listener_rule.main.arn
-    "elb:listener-priority" = var.listener_priority
-
+    "dns-name" = var.dns_name
   }
 }
 

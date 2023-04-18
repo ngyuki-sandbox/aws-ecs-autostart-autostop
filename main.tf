@@ -18,6 +18,7 @@ module "review" {
   source             = "./modules/review"
   name               = "${var.name}-review"
   dns_name           = trimsuffix("test.${var.dns_name}", ".")
+  image              = "nginx:alpine"
   listener_priority  = 10
   vpc_id             = module.vpc.vpc_id
   subnet_ids         = module.vpc.subnet_ids

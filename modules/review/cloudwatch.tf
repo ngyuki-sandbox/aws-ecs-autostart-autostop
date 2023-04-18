@@ -1,5 +1,6 @@
 resource "aws_cloudwatch_metric_alarm" "this" {
   alarm_name          = var.name
+  alarm_description   = aws_ssm_parameter.main.name
   alarm_actions       = [aws_sns_topic.this.arn]
   namespace           = "AWS/ApplicationELB"
   metric_name         = "RequestCountPerTarget"

@@ -7,4 +7,10 @@ resource "aws_lambda_function" "down" {
   runtime          = "nodejs16.x"
   timeout          = 30
   memory_size      = 1024
+
+  environment {
+    variables = {
+      parameter_prefix = var.parameter_prefix
+    }
+  }
 }
