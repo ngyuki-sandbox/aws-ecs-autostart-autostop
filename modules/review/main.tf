@@ -8,6 +8,7 @@ module "autostart" {
   listener_arn      = var.listener_arn
   listener_rule_arn = aws_lb_listener_rule.main.arn
   service_name      = aws_ecs_service.main.name
+  parameter_prefix  = local.parameter_prefix
 }
 
 module "autostop" {

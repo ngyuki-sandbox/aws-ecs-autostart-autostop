@@ -7,3 +7,7 @@ variable "cluster_arn" {}
 variable "execution_role_arn" {}
 variable "listener_arn" {}
 variable "dns_name" {}
+
+locals {
+  parameter_prefix = "/${var.name}/review"
+}

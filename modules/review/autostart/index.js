@@ -2,10 +2,11 @@ const AWS = require('aws-sdk');
 
 const elbv2 = new AWS.ELBv2();
 const ecs = new AWS.ECS();
+const ssm = new AWS.SSM();
 const sns = new AWS.SNS();
 
 exports.up = async (event, context) => {
-    console.log(JSON.stringify({event, context}, null, 2));
+    //console.log(JSON.stringify({event, context}, null, 2));
 
     if (event.path === '/polling') {
         return {
@@ -17,16 +18,23 @@ exports.up = async (event, context) => {
         };
     }
 
+    const host = event.headers.host;
+    const parameter_prefix = process.env.parameter_prefix;
+
+    const res = await ssm.getParameter({ Name: `${parameter_prefix}/${host}` }).promise();
+    const parameter = JSON.parse(res.Parameter.Value);
+    console.log(JSON.stringify({ parameter }, null, 2));
+
     await ecs.updateService({
-        cluster: process.env.cluster_arn,
-        service: process.env.service_name,
+        cluster: parameter.cluster_arn,
+        service: parameter.service_name,
         desiredCount: 1,
     }).promise();
 
     await elbv2.setRulePriorities({
         RulePriorities: [{
             Priority: 1,
-            RuleArn: process.env.listener_rule_arn,
+            RuleArn: parameter.listener_rule_arn,
         }],
     }).promise();
 

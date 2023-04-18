@@ -47,6 +47,13 @@ resource "aws_iam_role_policy" "lambda" {
       {
         "Effect" : "Allow",
         "Action" : [
+          "ssm:GetParameter",
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
           "sns:ListTagsForResource",
         ],
         "Resource" : "*"
